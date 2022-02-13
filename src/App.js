@@ -1,25 +1,62 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react'
+import Movie from './components/Movie'
+import Footer from './components/layouts/Footer'
 
-function App() {
+const App = () => {
+  const [movies, setMovies] = useState([])
+  const [searchTerm, setSearchTerm] = useState('')
+
+  useEffect(() => {
+    getMovies(
+      `https://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=8f39d9820b4c67295f106697b3fef2eb&page=1`
+    )
+  }, [])
+
+  const getMovies = (API) => {
+    fetch(API)
+      .then((res) => res.json())
+      .then((data) => setMovies(data.results))
+  }
+
+  const handleSubmit = (e) => {
+    console.log(searchTerm)
+    if (searchTerm !== '') {
+      getMovies(
+        `https://api.themoviedb.org/3/search/movie?api_key=8f39d9820b4c67295f106697b3fef2eb&query=` +
+          searchTerm
+      )
+      setSearchTerm('')
+    } else {
+    }
+    e.preventDefault()
+  }
+
+  const handleChange = (e) => setSearchTerm(e.target.value)
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
+    <>
+      <nav className="nav">
+        <a href="./" className="brand">
+        THE MOVIE FINDER
         </a>
-      </header>
-    </div>
-  );
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={searchTerm}
+            className="search"
+            placeholder="Find Movies"
+            onChange={handleChange}
+          />
+        </form>
+      </nav>
+
+      <div className="container">
+        {movies.length > 0 &&
+          movies.map((movie) => <Movie {...movie} key={movie.id} />)}
+      </div>
+      <Footer />
+    </>
+  )
 }
 
-export default App;
+export default App
